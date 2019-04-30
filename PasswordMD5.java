@@ -6,7 +6,7 @@ import java.security.NoSuchAlgorithmException;
 
 /*
  * Author:	Patrick and Marco
- * Date:		5/14/2019
+ * Date:		5/13/2019
  * Class:	CSC 160 Combo
  * Assignment:	Final Project
  * 
@@ -15,7 +15,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class PasswordMD5
 {
-	private String plaintext;
+	private static String plaintext;
+	
 	
 	public PasswordMD5(String plaintext1)
 	{
@@ -23,15 +24,18 @@ public class PasswordMD5
 	}
 	
 	// This method will determine the MD5 hash of a plaintext string, returning the value of the hash
-public static String getMD5Hash(String plaintext1)
+public String getMD5Hash()
 {
 	MessageDigest stringDigest;
 	BigInteger hashInteger = null;
-	try {
+	
+	try
+	{
 		stringDigest = MessageDigest.getInstance("md5");
-		byte[] messageDigest = stringDigest.digest(plaintext1.getBytes());
+		byte[] messageDigest = stringDigest.digest(plaintext.getBytes());
 		hashInteger = new BigInteger(1, messageDigest);	
-	} catch (NoSuchAlgorithmException e) {
+	} catch (NoSuchAlgorithmException e)
+	{
 		e.printStackTrace();
 	}
 	return hashInteger.toString(16);	
