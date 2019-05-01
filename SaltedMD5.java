@@ -8,14 +8,23 @@ import java.security.SecureRandom;
 public class SaltedMD5 {
 
 	private static String plaintext;
+	private static String saltedWithHash;
 
 	public SaltedMD5(String plaintext1) {
 		plaintext = plaintext1;
+		try 
+		{
+			saltedWithHash = getSaltedPassword(plaintext, getSalt());
+		}
+		catch (NoSuchAlgorithmException | NoSuchProviderException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	// This method will determine the MD5 hash of a plaintext string, returning the
 	// value of the hash
-	  public String getSaltedPassword(String plaintext, byte[] salt) throws NoSuchAlgorithmException, NoSuchProviderException
+	public String getSaltedPassword(String plaintext, byte[] salt) throws NoSuchAlgorithmException, NoSuchProviderException
 	    {
 	        String generatedPassword = null;
 	        try {
@@ -38,9 +47,15 @@ public class SaltedMD5 {
 	        catch (NoSuchAlgorithmException e) {
 	            e.printStackTrace();
 	        }
+	       // saltedWithHash = generatedPassword;
 	        return generatedPassword;
 	    }
-	     
+	  
+	  public String getHash()
+	  {
+		  return saltedWithHash;
+	  }
+
 
 	// This method will print the plaintext of this password/hash pair
 	public String getPlaintext() {
