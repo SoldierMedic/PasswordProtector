@@ -2,6 +2,7 @@ package Version1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 /*
@@ -21,11 +22,14 @@ public class PasswordProtector
 {
 	public static Scanner input = new Scanner(System.in);
 	public static String[][] mD5PasswordArray = new String[10000][2];	// array made from the password file; plaintext in column 0, md5Hash column 1
-
+	public static String[][] userDatabase = new String[10][3];			// Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
+	public static int databaseCounter = 0;								// Counts how many entries are in the user database
+	
 	public static void main( String[ ] args )
 	{
-		int userChoice;											// option user chooses for what they would like to do
+		int userChoice;										// option user chooses for what they would like to do
 		
+		readUserDatabaseToArray();
 		userLogin();
 		
 		do
@@ -71,7 +75,32 @@ public class PasswordProtector
 		// This method
 	public static void addNewUser()
 	{
+		String username = " ";
 		
+		System.out.println();
+		System.out.printf("What is the user's First Name?\n");
+		String firstName = input.next();
+		
+		System.out.printf("What is the user's Last Name?\n");
+		String lastName = input.next();
+		
+		System.out.printf("Is %s okay to use as the username, or would you like to choose a username(y/n)?\n", firstName);
+		char userChoice = input.next().charAt(0);
+		while (userChoice != 'y' && userChoice != 'n')
+		{
+			System.out.printf("Enter 'y' for using %s as username, or 'n' for choosing your own\n", firstName);
+		}
+		if (userChoice == 'y')
+		{
+			username = username.concat(firstName).trim();
+		}
+		else
+		{
+			username = "bill";
+		}
+		
+		System.out.printf("Enter password for %s:\n", username);
+		System.out.printf("%s   %s  %s", firstName, lastName, username);
 	}
 	
 		// Author
@@ -82,7 +111,7 @@ public class PasswordProtector
 	}
 	
 		// Author:	
-		// This method
+		// This method is a menu that allows a user to choose which file to read into the knownPassword array
 	public static void convertToMD5Menu()
 	{
 		int userChoice;										// option user chooses for what they would like to do
@@ -121,7 +150,8 @@ public class PasswordProtector
 	}
 	
 		// Author:
-		// This method
+		// This method will determine the plaintext identity of unknown hashes. This is accomplishes by comparing the list of unknown hashes to our list of hashes
+		// we determined from the list of strings. If a match is found, the plaintext of the hash is stored
 	public static void determinePlaintext(String[][] knownPasswords, String file1)
 	{
 		int counter = 0;									// holds how many hashes have been read to the array
@@ -223,7 +253,6 @@ public class PasswordProtector
 		try
 		{
 			readPasswordFile = new Scanner(new File(plaintextFile));
-			mD5PasswordArray = new String[10000][2];
 			
 			while (readPasswordFile.hasNextLine())
 			{
@@ -237,7 +266,7 @@ public class PasswordProtector
 				passwordCounter++;
 			}
 		}
-		catch ( FileNotFoundException e )
+		catch (FileNotFoundException e)
 		{
 			e.printStackTrace();
 		}
@@ -246,6 +275,49 @@ public class PasswordProtector
 			if (readPasswordFile != null)
 			{
 				readPasswordFile.close();
+			}
+		}
+	}
+	
+		// Author: Patrick
+		// This method will read in the password database file to the userDatabase array for use in the program
+	public static void readUserDatabaseToArray()
+	{
+		Scanner readDatabase = null;						// Object to read in the database file
+		Scanner scanLine = null;							// Object to assign lines from the database file to the array
+		String string1;										// Line from the file, to be read an assigned to array
+		
+		try
+		{
+			readDatabase = new Scanner(new File("UserDatabase.txt"));
+			
+			while (readDatabase.hasNextLine())
+			{
+				string1 = readDatabase.nextLine();
+				scanLine = new Scanner(string1);
+				scanLine.useDelimiter(";");
+				while (scanLine.hasNext())
+				{
+					userDatabase[databaseCounter][0] = scanLine.next();		// Username
+					userDatabase[databaseCounter][1] = scanLine.next();		// Salted hash
+					userDatabase[databaseCounter][2] = scanLine.next();		// Salt string
+				}
+				databaseCounter++;
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			if (readDatabase != null)
+			{
+				readDatabase.close();
+			}
+			if (scanLine != null)
+			{
+				scanLine.close();
 			}
 		}
 	}
