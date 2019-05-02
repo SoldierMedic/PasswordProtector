@@ -1,3 +1,4 @@
-admin;21232f297a57a5a743894a0e4a801fc3;null
-patrick;6c84cbd30cf9350a990bad2bcc1bec5f;null
-marco;f5888d0bb58d611107e11f7cbc41c97a;null
+admin;21232f297a57a5a743894a0e4a801fc3;null;admin;admin
+patrick;6c84cbd30cf9350a990bad2bcc1bec5f;null;Patrick;null
+marco;f5888d0bb58d611107e11f7cbc41c97a;null;Marco;null
+Bill;0d290b77490a04831a5844b2156fc0ad;�i	�z>��P�|��;Bill;Smith

@@ -2,6 +2,7 @@ package Version1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 /*
@@ -26,10 +27,14 @@ public class PasswordProtector
 	
 	public static void main( String[ ] args )
 	{
-		int userChoice;										// option user chooses for what they would like to do
+		int userChoice;										// Option user chooses for what they would like to do
+		char successfulLogin;								// Holds if a login was successful
 		
 		readUserDatabaseToArray();
-		userLogin();
+		do
+		{
+			successfulLogin = userLogin();
+		} while (successfulLogin != 'y');
 		
 		do
 		{
@@ -77,6 +82,7 @@ public class PasswordProtector
 		SaltedMD5 securePass = null;
 		String username = " ";
 		int x = 0;
+		
 		System.out.println();
 		System.out.printf("What is the user's First Name?\n");
 		String firstName = input.next();
@@ -104,31 +110,35 @@ public class PasswordProtector
 			changes = input.next().toLowerCase().charAt(0);
 			}while(changes == 'y');
 		}
-		do {
-		System.out.printf("Please enter a password for %s:\n", username);
-		String password1 = input.next();
-		System.out.println("Please re-enter the password.");
-		String password2 = input.next();
-		if(password1!=password2)
+		
+		do
 		{
-			System.out.println("The passwords don't match.");
-			
-		}
-		else {
-			x=1;
-			password1 = null;
-			securePass = new SaltedMD5(password2);
-			password2=null;
-			String salt = securePass.getSalt();
-			String hash = securePass.getHash();
-			userDatabase[databaseCounter][0] = username;			// Username
-			userDatabase[databaseCounter][1] = hash;				// Salted hash
-			userDatabase[databaseCounter][2] = salt;				// Salt string
-			userDatabase[databaseCounter][3] = firstName;			// First name
-			userDatabase[databaseCounter][4] = lastName;			// Last name
-		}
+			System.out.printf("Please enter a password for %s:\n", username);
+			String password1 = input.next();
+			System.out.println("Please re-enter the password.");
+			String password2 = input.next();
+			if(password1.equals(password2))
+			{
+				x=1;
+				securePass = new SaltedMD5(password2);
+				password1 = null;
+				password2 = null;
+				String salt = securePass.getSalt();
+				String hash = securePass.getHash();
+				userDatabase[databaseCounter][0] = username;			// Username
+				userDatabase[databaseCounter][1] = hash;				// Salted hash
+				userDatabase[databaseCounter][2] = salt;				// Salt string
+				userDatabase[databaseCounter][3] = firstName;			// First name
+				userDatabase[databaseCounter][4] = lastName;			// Last name
+
+			}
+			else
+			{
+				System.out.println("The passwords don't match.");
+			}
 		}while(x==0);
 		databaseCounter++;
+		writeUserDatabaseToFile();
 	}
 	
 		// Author
@@ -309,14 +319,6 @@ public class PasswordProtector
 	
 		// Author: Patrick
 		// This method will read in the password database file to the userDatabase array for use in the program
-	
-	
-		// Author: Patrick
-		// This method will read in the password database file to the userDatabase array for use in the program
-
-
-	// Author: Patrick
-		// This method will read in the password database file to the userDatabase array for use in the program
 	public static void readUserDatabaseToArray()
 	{
 		Scanner readDatabase = null;						// Object to read in the database file
@@ -340,7 +342,6 @@ public class PasswordProtector
 					userDatabase[databaseCounter][3] = scanLine.next();		// First name
 					userDatabase[databaseCounter][4] = scanLine.next();		// Last name
 				}
-				
 				databaseCounter++;
 			}
 		}
@@ -360,8 +361,8 @@ public class PasswordProtector
 			}
 		}
 	}
-
-	// Author
+	
+		// Author
 		// This method
 	public static void showPasswordDatabase()
 	{
@@ -370,11 +371,79 @@ public class PasswordProtector
 	
 		// Author
 		// This method
-	public static void userLogin()
+	public static char userLogin()
 	{
+		SaltedMD5 checkLogin = null;						// Create SaltedMD5 object for use in checking correct login
+		PasswordMD5 checkLoginPlain = null;					// Create PasswordMD5 object for use in checking correct login without salted hash
+		String expectedHash = null;							// Store user hash from userDatabase
+		String userSalt = null;								// Store user salt string from userDatabase
+		char successfulLogin = 'n';							// Variable to pass back if a user login was successfully confirmed. No be default unless login is successful
+		
+		System.out.println();
+		System.out.printf("Enter username:\t");
+		String username = input.next();
+		System.out.printf("\nEnter password:\t");
+		String password = input.next();
+		checkLogin = new SaltedMD5(password);
+		checkLoginPlain = new PasswordMD5(password);
+		
+		for (int i = 0; i < userDatabase.length; i++)
+		{
+			if (username.equals(userDatabase[i][0]))
+			{
+				userSalt = userDatabase[i][2];
+				expectedHash = userDatabase[i][1];
+				
+				if (checkLogin.checkLogin(password, userSalt).equals(expectedHash))
+				{
+					System.out.printf("\nWelcome %s!\n", username);
+					successfulLogin = 'y';
+				}
+				else if (checkLoginPlain.getMD5Hash().equals(expectedHash))
+				{
+					System.out.printf("\nWelcome %s!\n", username);
+					successfulLogin = 'y';
+				}
+				else
+				{
+					System.out.printf("\nIncorrect password for %s\n", username);
+				}
+			}
+		}
+		if (expectedHash == null)
+		{
+			System.out.printf("\nUser not found\n");
+		}
+		return successfulLogin;
+	}
+	
+	public static void writeUserDatabaseToFile()
+	{
+		PrintWriter writeFile = null;
+		
+		try
+		{
+			writeFile = new PrintWriter(new File("UserDatabase.txt"));
+			
+			for (int i = 0; i < databaseCounter; i++)
+			{
+				writeFile.printf("%s;%s;%s;%s;%s\n", userDatabase[i][0], userDatabase[i][1], userDatabase[i][2], userDatabase[i][3], userDatabase[i][4]);
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			if (writeFile != null)
+			{
+				writeFile.close();
+			}
+		}
 		
 	}
-
+	
 	/*
 	 * 	Problems
 	 * 
