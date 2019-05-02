@@ -2,7 +2,6 @@ package Version1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 /*
@@ -22,7 +21,7 @@ public class PasswordProtector
 {
 	public static Scanner input = new Scanner(System.in);
 	public static String[][] mD5PasswordArray = new String[10000][2];	// array made from the password file; plaintext in column 0, md5Hash column 1
-	public static String[][] userDatabase = new String[10][3];			// Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
+	public static String[][] userDatabase = new String[10][5];			// Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
 	public static int databaseCounter = 0;								// Counts how many entries are in the user database
 	
 	public static void main( String[ ] args )
@@ -75,8 +74,9 @@ public class PasswordProtector
 		// This method
 	public static void addNewUser()
 	{
+		SaltedMD5 securePass = null;
 		String username = " ";
-		
+		int x = 0;
 		System.out.println();
 		System.out.printf("What is the user's First Name?\n");
 		String firstName = input.next();
@@ -96,11 +96,39 @@ public class PasswordProtector
 		}
 		else
 		{
-			username = "bill";
+			char changes = 'y';
+			do {
+			System.out.println("What would you like the username to be for the user\n");
+			username = input.next();
+			System.out.printf("You chose %s.\nWould you like to make any changes?\nY/N?");
+			changes = input.next().toLowerCase().charAt(0);
+			}while(changes == 'y');
 		}
-		
-		System.out.printf("Enter password for %s:\n", username);
-		System.out.printf("%s   %s  %s", firstName, lastName, username);
+		do {
+		System.out.printf("Please enter a password for %s:\n", username);
+		String password1 = input.next();
+		System.out.println("Please re-enter the password.");
+		String password2 = input.next();
+		if(password1!=password2)
+		{
+			System.out.println("The passwords don't match.");
+			
+		}
+		else {
+			x=1;
+			password1 = null;
+			securePass = new SaltedMD5(password2);
+			password2=null;
+			String salt = securePass.getSalt();
+			String hash = securePass.getHash();
+			userDatabase[databaseCounter][0] = username;			// Username
+			userDatabase[databaseCounter][1] = hash;				// Salted hash
+			userDatabase[databaseCounter][2] = salt;				// Salt string
+			userDatabase[databaseCounter][3] = firstName;			// First name
+			userDatabase[databaseCounter][4] = lastName;			// Last name
+		}
+		}while(x==0);
+		databaseCounter++;
 	}
 	
 		// Author
@@ -281,6 +309,14 @@ public class PasswordProtector
 	
 		// Author: Patrick
 		// This method will read in the password database file to the userDatabase array for use in the program
+	
+	
+		// Author: Patrick
+		// This method will read in the password database file to the userDatabase array for use in the program
+
+
+	// Author: Patrick
+		// This method will read in the password database file to the userDatabase array for use in the program
 	public static void readUserDatabaseToArray()
 	{
 		Scanner readDatabase = null;						// Object to read in the database file
@@ -301,7 +337,10 @@ public class PasswordProtector
 					userDatabase[databaseCounter][0] = scanLine.next();		// Username
 					userDatabase[databaseCounter][1] = scanLine.next();		// Salted hash
 					userDatabase[databaseCounter][2] = scanLine.next();		// Salt string
+					userDatabase[databaseCounter][3] = scanLine.next();		// First name
+					userDatabase[databaseCounter][4] = scanLine.next();		// Last name
 				}
+				
 				databaseCounter++;
 			}
 		}
@@ -321,8 +360,8 @@ public class PasswordProtector
 			}
 		}
 	}
-	
-		// Author
+
+	// Author
 		// This method
 	public static void showPasswordDatabase()
 	{
@@ -335,7 +374,7 @@ public class PasswordProtector
 	{
 		
 	}
-	
+
 	/*
 	 * 	Problems
 	 * 
