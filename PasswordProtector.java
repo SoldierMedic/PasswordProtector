@@ -75,8 +75,8 @@ public class PasswordProtector
 		} while (userChoice >= 1 && userChoice <= 5);
 	}
 	
-		// Author
-		// This method
+		// Author: Marco
+		// This method allows the addition of a new user. They are prompted to enter first and last name, a username is assigned, or the user can choose their own username
 	public static void addNewUser()
 	{
 		SaltedMD5 securePass = null;
@@ -90,11 +90,12 @@ public class PasswordProtector
 		System.out.printf("What is the user's Last Name?\n");
 		String lastName = input.next();
 		
-		System.out.printf("Is %s okay to use as the username, or would you like to choose a username(y/n)?\n", firstName);
+		System.out.printf("Is %s okay to use as the username, or would you like to choose a username(y/c)?\n", firstName);
 		char userChoice = input.next().charAt(0);
-		while (userChoice != 'y' && userChoice != 'n')
+		while (userChoice != 'y' && userChoice != 'c')
 		{
-			System.out.printf("Enter 'y' for using %s as username, or 'n' for choosing your own\n", firstName);
+			System.out.printf("Enter 'y' for using %s as username, or 'c' for choosing your own\n", firstName);
+			userChoice = input.next().charAt(0);
 		}
 		if (userChoice == 'y')
 		{
@@ -104,9 +105,9 @@ public class PasswordProtector
 		{
 			char changes = 'y';
 			do {
-			System.out.println("What would you like the username to be for the user\n");
+			System.out.printf("What would you like the username to be for the user\n");
 			username = input.next();
-			System.out.printf("You chose %s.\nWould you like to make any changes?\nY/N?");
+			System.out.printf("You chose %s.\nWould you like to make any changes?\nY/N?\n", username);
 			changes = input.next().toLowerCase().charAt(0);
 			}while(changes == 'y');
 		}
@@ -121,8 +122,6 @@ public class PasswordProtector
 			{
 				x=1;
 				securePass = new SaltedMD5(password2);
-				password1 = null;
-				password2 = null;
 				String salt = securePass.getSalt();
 				String hash = securePass.getHash();
 				userDatabase[databaseCounter][0] = username;			// Username
@@ -130,7 +129,8 @@ public class PasswordProtector
 				userDatabase[databaseCounter][2] = salt;				// Salt string
 				userDatabase[databaseCounter][3] = firstName;			// First name
 				userDatabase[databaseCounter][4] = lastName;			// Last name
-
+				password1 = null;
+				password2 = null;
 			}
 			else
 			{
@@ -138,6 +138,10 @@ public class PasswordProtector
 			}
 		}while(x==0);
 		databaseCounter++;
+		if (databaseCounter >= userDatabase.length)
+		{
+			userDatabase = increaseArraySize(userDatabase);
+		}
 		writeUserDatabaseToFile();
 	}
 	
@@ -148,7 +152,7 @@ public class PasswordProtector
 		
 	}
 	
-		// Author:	
+		// Author:
 		// This method is a menu that allows a user to choose which file to read into the knownPassword array
 	public static void convertToMD5Menu()
 	{
@@ -170,11 +174,6 @@ public class PasswordProtector
 		{
 			fileChoice = "Plaintext.txt";
 			readFileToPasswordArray(fileChoice);
-			
-			for (int i = 0; i < mD5PasswordArray.length; i++)
-			{
-				System.out.printf("%10s%40s\n", mD5PasswordArray[i][0], mD5PasswordArray[i][1]);
-			}
 		}
 		else
 		{
@@ -199,11 +198,6 @@ public class PasswordProtector
 		String unknownHash;									// holds value of string of unknown hash
 		String[][] unknownPasswords = new String[10][2];	// holds unknown hash in column 0, determined (if possible) string value in column 1
 		
-		for (int i = 0; i < knownPasswords.length; i++)
-		{
-			System.out.printf("%10s%40s\n", knownPasswords[i][0], knownPasswords[i][1]);
-		}
-		
 		try
 		{
 			unknownHashes = new Scanner(new File(file1));
@@ -225,13 +219,7 @@ public class PasswordProtector
 				counter++;
 				if (counter >= unknownPasswords.length)		// Double number of rows in array if counter(our index value) becomes greater than the array length
 				{
-					String[][] cloneArray = new String[unknownPasswords.length * 2][2];
-					for (int i = 0; i < unknownPasswords.length; i++)
-					{
-						cloneArray[i][0] = unknownPasswords[i][0];
-						cloneArray[i][1] = unknownPasswords[i][1];
-					}
-					unknownPasswords = cloneArray;
+					unknownPasswords = increaseArraySize(unknownPasswords);
 				}
 			}
 		}
@@ -248,7 +236,7 @@ public class PasswordProtector
 		}
 	}
 	
-		// Author:	
+		// Author:
 		// This method creates a menu that allows a user to choose different unknown hash files to try and determine their identities
 	public static void determinePlaintextMenu(String[][] knownPasswords)
 	{
@@ -279,7 +267,22 @@ public class PasswordProtector
 		}
 	}
 	
-		// Author:	
+		// Author:
+		// This method will take a 2-dimensions String array, and return a copy of the array that is twice the length
+	public static String[][] increaseArraySize(String[][] origionalArray)
+	{
+		String[][] cloneArray = new String[origionalArray.length * 2][origionalArray[0].length];
+		for (int i = 0; i < origionalArray.length; i++)
+		{
+			for (int j = 0; j < origionalArray[0].length; j++)
+			{
+				cloneArray[i][j] = origionalArray[i][j];
+			}
+		}
+		return cloneArray;
+	}
+	
+		// Author:
 		// This method will read a file of plaintext strings to an array, then in the second column of the array store the MD5 hash of the string in the first column
 	public static void readFileToPasswordArray(String plaintextFile)
 	{
@@ -302,6 +305,10 @@ public class PasswordProtector
 				System.out.printf("%10s%40s\n", mD5PasswordArray[passwordCounter][0], mD5PasswordArray[passwordCounter][1]);
 				
 				passwordCounter++;
+				if (passwordCounter >= mD5PasswordArray.length)
+				{
+					mD5PasswordArray = increaseArraySize(mD5PasswordArray);
+				}
 			}
 		}
 		catch (FileNotFoundException e)
@@ -317,7 +324,7 @@ public class PasswordProtector
 		}
 	}
 	
-		// Author: Patrick
+		// Author:
 		// This method will read in the password database file to the userDatabase array for use in the program
 	public static void readUserDatabaseToArray()
 	{
@@ -343,6 +350,10 @@ public class PasswordProtector
 					userDatabase[databaseCounter][4] = scanLine.next();		// Last name
 				}
 				databaseCounter++;
+				if (databaseCounter >= userDatabase.length)
+				{
+					userDatabase = increaseArraySize(userDatabase);
+				}
 			}
 		}
 		catch (FileNotFoundException e)
@@ -362,15 +373,20 @@ public class PasswordProtector
 		}
 	}
 	
-		// Author
-		// This method
+		// Author:
+		// This method will print the user database to the screen
 	public static void showPasswordDatabase()
 	{
-		
+		System.out.printf("\n%10s%25s%15s%10s%10s%15s", "Username", "Hash", " ", "First Name", "Last Name", "Salt String\n");
+		for (int i = 0; i < userDatabase.length; i++)
+		{
+			System.out.printf("%10s%40s%15s%10s%10s\n", userDatabase[i][0], userDatabase[i][1], userDatabase[i][3], userDatabase[i][4], userDatabase[i][2]);
+		}
 	}
 	
-		// Author
-		// This method
+		// Author:
+		// This method allows a user to login. The username is checked against the password database and a hash of the user's password is compared against the one
+		// in the database. It is checked whether the user had a salted password or an unsalted password and checks the hash accordingly
 	public static char userLogin()
 	{
 		SaltedMD5 checkLogin = null;						// Create SaltedMD5 object for use in checking correct login
@@ -417,6 +433,8 @@ public class PasswordProtector
 		return successfulLogin;
 	}
 	
+		// Author:
+		// This method will write the contents of the userDatabase array back to the UserDatabase.txt file that it was read in from
 	public static void writeUserDatabaseToFile()
 	{
 		PrintWriter writeFile = null;
@@ -441,7 +459,6 @@ public class PasswordProtector
 				writeFile.close();
 			}
 		}
-		
 	}
 	
 	/*

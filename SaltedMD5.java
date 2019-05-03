@@ -28,7 +28,7 @@ public class SaltedMD5 {
 	}
 	
 		// Author: Marco
-		// This method
+		// This method will check the hash  a string and predetermined salt string
 	public String checkLogin(String plaintext1, String saltString)
 	{
 		byte[] salt = saltString.getBytes();
@@ -36,21 +36,15 @@ public class SaltedMD5 {
 		
 		try
 		{
-				//Create MessageDigest instance for MD5
-			MessageDigest digest1 = MessageDigest.getInstance("MD5");
-				//Add password bytes to digest
-			digest1.update(salt);
-				//Get the hash's bytes
-			byte[] bytes = digest1.digest(plaintext1.getBytes());
-				//This bytes[] has bytes in decimal format;
-				//Convert it to hexadecimal format
-			StringBuilder builder1 = new StringBuilder();
+			MessageDigest digest1 = MessageDigest.getInstance("MD5");	// Create MessageDigest instance for MD5
+			digest1.update(salt);										// Add password bytes to digest
+			byte[] bytes = digest1.digest(plaintext1.getBytes());		// Get the hash's bytes
+			StringBuilder builder1 = new StringBuilder();				// This bytes[] has bytes in decimal format; Convert it to hexadecimal format
 			for(int i=0; i< bytes.length ;i++)
 			{
 				builder1.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
 			}
-				//Get complete hashed password in hex format
-			generatedHash = builder1.toString();
+			generatedHash = builder1.toString();						// Get complete hashed password in hex format
 		}
 		catch (NoSuchAlgorithmException e)
 		{
@@ -86,21 +80,15 @@ public class SaltedMD5 {
 		String saltedPasswordHash = null;
 		try
 		{
-				//Create MessageDigest instance for MD5
-			MessageDigest digest1 = MessageDigest.getInstance("MD5");
-				//Add password bytes to digest
-			digest1.update(salt);
-				//Get the hash's bytes
-			byte[] bytes = digest1.digest(plaintext1.getBytes());
-				//This bytes[] has bytes in decimal format;
-				//Convert it to hexadecimal format
-			StringBuilder builder1 = new StringBuilder();
+			MessageDigest digest1 = MessageDigest.getInstance("MD5");	// Create MessageDigest instance for MD5
+			digest1.update(salt);										// Add password bytes to digest
+			byte[] bytes = digest1.digest(plaintext1.getBytes());		// Get the hash's bytes
+			StringBuilder builder1 = new StringBuilder();				// This bytes[] has bytes in decimal format, convert it to hexadecimal format
 			for(int i=0; i< bytes.length ;i++)
 			{
 				builder1.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
 			}
-				//Get complete hashed password in hex format
-			saltedPasswordHash = builder1.toString();
+			saltedPasswordHash = builder1.toString();					// Get complete hashed password in hex format
 		}
 		catch (NoSuchAlgorithmException e)
 		{
@@ -132,7 +120,7 @@ public class SaltedMD5 {
 		return plaintext;
 	}
 
-		// Author:
+		// Author: Marco
 		// This method will allow a user to set the plaintext for a pair. If plaintext
 		// is set, new hash is determined
 	public void setPlaintext(String plaintext1)
