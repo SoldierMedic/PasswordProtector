@@ -23,7 +23,8 @@ public class PasswordProtector
 	public static Scanner input = new Scanner(System.in);
 	public static String[][] mD5PasswordArray = new String[10000][2];	// array made from the password file; plaintext in column 0, md5Hash column 1
 	public static String[][] userDatabase = new String[10][5];			// Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
-	public static int databaseCounter = 0;// Counts how many entries are in the user database
+	public static int databaseCounter = 0;
+	// Counts how many entries are in the user database
 	
 	public static void main( String[ ] args )
 	{
