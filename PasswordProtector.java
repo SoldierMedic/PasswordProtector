@@ -23,19 +23,18 @@ public class PasswordProtector
 	public static Scanner input = new Scanner(System.in);
 	public static String[][] mD5PasswordArray = new String[10000][2];	// array made from the password file; plaintext in column 0, md5Hash column 1
 	public static String[][] userDatabase = new String[10][5];			// Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
-	public static int databaseCounter = 0;								// Counts how many entries are in the user database
+	public static int databaseCounter = 0;// Counts how many entries are in the user database
 	
 	public static void main( String[ ] args )
 	{
 		int userChoice;										// Option user chooses for what they would like to do
 		char successfulLogin;								// Holds if a login was successful
-		
 		readUserDatabaseToArray();
-		do
+		/*do
 		{
 			successfulLogin = userLogin();
 		} while (successfulLogin != 'y');
-		
+		*/
 		do
 		{
 			System.out.printf("\nWhat would you like to do?\n\n");
@@ -44,6 +43,7 @@ public class PasswordProtector
 			System.out.printf("3) Check if your password is weak\n");
 			System.out.printf("4) Add new user\n");
 			System.out.printf("5) Show password database\n");
+			System.out.printf("6) Try logging in\n");
 			
 			userChoice = input.nextInt();
 			while (userChoice < 1 && userChoice > 5)
@@ -68,9 +68,17 @@ public class PasswordProtector
 			{
 				addNewUser();
 			}
-			else
+			else if (userChoice == 5)
 			{
 				showPasswordDatabase();
+				}
+			else
+			{
+				do
+				{
+					successfulLogin = userLogin();
+				} while (successfulLogin != 'y');
+				
 			}
 		} while (userChoice >= 1 && userChoice <= 5);
 	}
@@ -123,7 +131,8 @@ public class PasswordProtector
 				x=1;
 				securePass = new SaltedMD5(password2);
 				String salt = securePass.getSalt();
-				String hash = securePass.getHash();
+				System.out.printf("line 125 salt is %s", salt);
+				String hash = securePass.getHash();				System.out.println("line 136 hash is "+hash);
 				userDatabase[databaseCounter][0] = username;			// Username
 				userDatabase[databaseCounter][1] = hash;				// Salted hash
 				userDatabase[databaseCounter][2] = salt;				// Salt string
@@ -394,8 +403,6 @@ public class PasswordProtector
 		String expectedHash = null;							// Store user hash from userDatabase
 		String userSalt = null;								// Store user salt string from userDatabase
 		char successfulLogin = 'n';							// Variable to pass back if a user login was successfully confirmed. No be default unless login is successful
-		
-		System.out.println();
 		System.out.printf("Enter username:\t");
 		String username = input.next();
 		System.out.printf("\nEnter password:\t");
@@ -407,9 +414,9 @@ public class PasswordProtector
 		{
 			if (username.equals(userDatabase[i][0]))
 			{
+			
 				userSalt = userDatabase[i][2];
 				expectedHash = userDatabase[i][1];
-				
 				if (checkLogin.checkLogin(password, userSalt).equals(expectedHash))
 				{
 					System.out.printf("\nWelcome %s!\n", username);

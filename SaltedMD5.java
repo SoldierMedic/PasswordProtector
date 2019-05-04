@@ -33,12 +33,11 @@ public class SaltedMD5 {
 	{
 		byte[] salt = saltString.getBytes();
 		String generatedHash = null;
-		
 		try
 		{
 			MessageDigest digest1 = MessageDigest.getInstance("MD5");	// Create MessageDigest instance for MD5
 			digest1.update(salt);										// Add password bytes to digest
-			byte[] bytes = digest1.digest(plaintext1.getBytes());		// Get the hash's bytes
+			byte[] bytes = digest1.digest(plaintext1.getBytes());		// Get the plain password bytes
 			StringBuilder builder1 = new StringBuilder();				// This bytes[] has bytes in decimal format; Convert it to hexadecimal format
 			for(int i=0; i< bytes.length ;i++)
 			{
@@ -50,6 +49,7 @@ public class SaltedMD5 {
 		{
 			e.printStackTrace();
 		}
+
 		return generatedHash;
 	}
 	
@@ -94,7 +94,6 @@ public class SaltedMD5 {
 		{
         	e.printStackTrace();
         }
-			// saltedWithHash = generatedPassword;
         return saltedPasswordHash;
     }
 	
