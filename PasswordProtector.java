@@ -46,9 +46,10 @@ public class PasswordProtector
 			System.out.printf("6) Try logging in\n");
 			
 			userChoice = input.nextInt();
-			while (userChoice < 1 && userChoice > 5)
+			
+			while (userChoice < 1 || userChoice > 6)
 			{
-				System.out.printf("Incorrect Choice\nPlease enter a number between 1 and 5\n");
+				System.out.printf("Incorrect Choice\nPlease enter a number between 1 and 6\n");
 				userChoice = input.nextInt();
 			}
 			
@@ -69,18 +70,17 @@ public class PasswordProtector
 				addNewUser();
 			}
 			else if (userChoice == 5)
-			{
-				showPasswordDatabase();
-				}
-			else
-			{
 				do
 				{
 					successfulLogin = userLogin();
 				} while (successfulLogin != 'y');
-				
-			}
-		} while (userChoice >= 1 && userChoice <= 5);
+			else
+			
+				{
+					showPasswordDatabase();
+					}
+			
+		} while (userChoice >= 1 && userChoice <= 6);
 	}
 	
 		// Author: Marco
