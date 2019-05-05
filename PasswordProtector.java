@@ -11,10 +11,10 @@ import java.util.Scanner;
  * Class:		CSC 160 Combo
  * Assignment:	Final Project
  * 
- * This program is the driver class for the Final Project. Main is a Main Menu that throws the user's choice to one of the methods. Before the user can reach the Main Menu, there is a login process (WORK IN PROGRESS)
- * The user can convert a list of plaintext strings to MD5 hashes for user in determining a list of unknown hashes (WORK IN PROGRESS). Users can also check if their password appears in any passwords used in lists
+ * This program is the driver class for the Final Project. Main is a Main Menu that throws the user's choice to one of the methods. Before the user can reach the Main Menu, there is a login process.
+ * The user can convert a list of plaintext strings to MD5 hashes for user in determining a list of unknown hashes. Users can also check if their password appears in any passwords used in lists
  * in the program, thus telling the user they have a weak password (WORK IN PROGRESS). Finally, users can interact with the password database that allowed them to login, by adding new users or displaying the database
- * file to display differences between salting and not salting passwords (WORK IN PROGRESS)
+ * file to display differences between salting and not salting passwords
  * 
  */
 
@@ -23,12 +23,11 @@ public class PasswordProtector
 	public static Scanner input = new Scanner(System.in);
 	public static String[][] mD5PasswordArray = new String[10000][2];	// array made from the password file; plaintext in column 0, md5Hash column 1
 	public static String[][] userDatabase = new String[10][5];			// Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
-	public static int databaseCounter = 0;
-	// Counts how many entries are in the user database
+	public static int databaseCounter = 0;								// Counts how many entries are in the user database
 	
 	public static void main( String[ ] args )
 	{
-		int userChoice;										// Option user chooses for what they would like to do
+		char userChoice;									// Option user chooses for what they would like to do
 		char successfulLogin;								// Holds if a login was successful
 		readUserDatabaseToArray();
 		/*do
@@ -43,54 +42,61 @@ public class PasswordProtector
 			System.out.printf("2) Determine plaintext of list of unknown hashes\n");
 			System.out.printf("3) Check if your password is weak\n");
 			System.out.printf("4) Add new user\n");
-			System.out.printf("5) Show password database\n");
-			System.out.printf("6) Try logging in\n");
+			System.out.printf("5) Try logging in\n"); 
+			System.out.printf("6) Show password database\n");
+			System.out.printf("Q) Quit\n");
+			userChoice = input.next().toLowerCase().charAt(0);
 			
-			userChoice = input.nextInt();
-			
-			while (userChoice < 1 || userChoice > 6)
+			while (userChoice < '1' || userChoice > '6' && userChoice != 'q')
 			{
-				System.out.printf("Incorrect Choice\nPlease enter a number between 1 and 6\n");
-				userChoice = input.nextInt();
+				System.out.printf("Incorrect Choice\nPlease enter a number between 1 and 6, or press q to Quit\n");
+				userChoice = input.next().charAt(0);
 			}
 			
-			if (userChoice == 1)
+			if (userChoice == '1')
 			{
 				convertToMD5Menu();
 			}
-			else if (userChoice == 2)
+			else if (userChoice == '2')
 			{
 				determinePlaintextMenu(mD5PasswordArray);
 			}
-			else if (userChoice == 3)
+			else if (userChoice == '3')
 			{
-				checkWeakPassword();
+				checkWeakPassword("Hi");
 			}
-			else if (userChoice == 4)
+			else if (userChoice == '4')
 			{
 				addNewUser();
 			}
-			else if (userChoice == 5)
+			else if (userChoice == '5')
+			{
 				do
 				{
 					successfulLogin = userLogin();
 				} while (successfulLogin != 'y');
+			}
+			else if (userChoice == '6')
+			{
+				showPasswordDatabase();
+			}
 			else
+			{
+				System.out.printf("Goodbye\n");
+			}
 			
-				{
-					showPasswordDatabase();
-					}
-			
-		} while (userChoice >= 1 && userChoice <= 6);
+		} while (userChoice >= '1' && userChoice <= '6');
 	}
 	
 		// Author: Marco
 		// This method allows the addition of a new user. They are prompted to enter first and last name, a username is assigned, or the user can choose their own username
 	public static void addNewUser()
 	{
-		SaltedMD5 securePass = null;
-		String username = " ";
-		int x = 0;
+		SaltedMD5 securePass = null;						// Salted password object for storing hash of user password in database
+		String username = " ";								// Username string; starts with space so firstName can be added to it as default username
+		boolean allowedPassword;							// Stores if password is allowed (ie not duplicate or considered weak)
+		boolean duplicateUsername;							// Stores if chosen usename is a duplicate with a existing user
+		char userChoice;									// Holds user choice in different menus or yes/no prompts
 		
 		System.out.println();
 		System.out.printf("What is the user's First Name?\n");
@@ -100,7 +106,7 @@ public class PasswordProtector
 		String lastName = input.next();
 		
 		System.out.printf("Is %s okay to use as the username, or would you like to choose a username(y/c)?\n", firstName);
-		char userChoice = input.next().charAt(0);
+		userChoice = input.next().charAt(0);
 		while (userChoice != 'y' && userChoice != 'c')
 		{
 			System.out.printf("Enter 'y' for using %s as username, or 'c' for choosing your own\n", firstName);
@@ -112,41 +118,105 @@ public class PasswordProtector
 		}
 		else
 		{
-			char changes = 'y';
-			do {
 			System.out.printf("What would you like the username to be for the user\n");
 			username = input.next();
-			System.out.printf("You chose %s.\nWould you like to make any changes?\nY/N?\n", username);
-			changes = input.next().toLowerCase().charAt(0);
-			}while(changes == 'y');
 		}
 		
+		duplicateUsername = false;							// Declare username to be unique until duplicate is found
+		for (int i = 0; i < databaseCounter; i++)
+		{
+			if (userDatabase[i][0].equals(username))
+			{
+				duplicateUsername = true;
+			}
+		}
+		while (duplicateUsername)
+		{
+			System.out.printf("%s is not available as a username. Please choose a different username\n", username);
+			username = input.next();
+			duplicateUsername = false;						// Reset for checking of new username
+			for (int i = 0; i < databaseCounter; i++)
+			{
+				if (userDatabase[i][0].equals(username))
+				{
+					duplicateUsername = true;
+				}
+			}
+		}
+		
+		System.out.printf("First Name:\t%s\nLast Name:\t%s\nUsername:\t%s\n", firstName, lastName, username);
+		System.out.printf("Is your information correct?\nY/N?\n", username);
+		userChoice = input.next().toLowerCase().charAt(0);
+		while (userChoice != 'y' && userChoice != 'n')
+		{
+			System.out.printf("First Name:\t%s\nLast Name:\t%s\nUsername:\t%s\n", firstName, lastName, username);
+			System.out.printf("Please enter 'Y' if your information is correct, or 'N' to make changes\n");
+		}
+		while (userChoice == 'n')
+		{
+			System.out.printf("Enter number of what you would like to change:\n1) First Name:\t%s\n2) Last Name:\t%s\n", firstName, lastName);
+			userChoice = input.next().charAt(0);
+			while (userChoice < '1' && userChoice > '2')
+			{
+				System.out.printf("Enter number of what you would like to change:\n1) First Name:\t%s\n2) Last Name:\t%s\n", firstName, lastName);
+				userChoice = input.next().charAt(0);
+			}
+			
+			if (userChoice == '1')
+			{
+				System.out.printf("First name was: %s\nEnter correction:  ", firstName);
+				firstName = input.next();
+			}
+			else
+			{
+				System.out.printf("First name was: %s\nEnter correction:  ", lastName);
+				lastName = input.next();
+			}
+			
+			System.out.printf("First Name:\t%s\nLast Name:\t%s\nUsername:\t%s\n", firstName, lastName, username);
+			System.out.printf("Is your information correct?\nY/N?\n", username);
+			userChoice = input.next().toLowerCase().charAt(0);
+			while (userChoice != 'y' && userChoice != 'n')
+			{
+				System.out.printf("First Name:\t%s\nLast Name:\t%s\nUsername:\t%s\n", firstName, lastName, username);
+				System.out.printf("Please enter 'Y' if your information is correct, or 'N' to make changes\n");
+			}
+		}
+		
+		allowedPassword = false;							// Assume weak password until strong one is provided
 		do
 		{
 			System.out.printf("Please enter a password for %s:\n", username);
 			String password1 = input.next();
-			System.out.println("Please re-enter the password.");
+			System.out.printf("Please re-enter the password:\n");
 			String password2 = input.next();
+			
 			if(password1.equals(password2))
 			{
-				x=1;
-				securePass = new SaltedMD5(password2);
-				String salt = securePass.getSalt();
-				System.out.printf("line 125 salt is %s", salt);
-				String hash = securePass.getHash();				System.out.println("line 136 hash is "+hash);
-				userDatabase[databaseCounter][0] = username;			// Username
-				userDatabase[databaseCounter][1] = hash;				// Salted hash
-				userDatabase[databaseCounter][2] = salt;				// Salt string
-				userDatabase[databaseCounter][3] = firstName;			// First name
-				userDatabase[databaseCounter][4] = lastName;			// Last name
-				password1 = null;
-				password2 = null;
+				if (checkWeakPassword(password2))
+				{
+					System.out.printf("Your password is too weak. Please meet password requirements\n");
+				}
+				else
+				{
+					allowedPassword = true;
+					securePass = new SaltedMD5(password2);
+					String salt = securePass.getSalt();
+					System.out.printf("line 125 salt is %s", salt);
+					String hash = securePass.getHash();				System.out.println("line 136 hash is "+hash);
+					userDatabase[databaseCounter][0] = username;			// Username
+					userDatabase[databaseCounter][1] = hash;				// Salted hash
+					userDatabase[databaseCounter][2] = salt;				// Salt string
+					userDatabase[databaseCounter][3] = firstName;			// First name
+					userDatabase[databaseCounter][4] = lastName;			// Last name
+				}
 			}
 			else
 			{
 				System.out.println("The passwords don't match.");
 			}
-		}while(x==0);
+		}while(!allowedPassword);
+		
 		databaseCounter++;
 		if (databaseCounter >= userDatabase.length)
 		{
@@ -156,10 +226,19 @@ public class PasswordProtector
 	}
 	
 		// Author
-		// This method
-	public static void checkWeakPassword()
+		// This method will check a password against password requirements and return if it is weak
+	public static Boolean checkWeakPassword(String password)
 	{
-		
+		Boolean weakPassword;
+		if (password.length() > 8)
+		{
+			weakPassword = false;
+		}
+		else
+		{
+			weakPassword = true;
+		}
+		return weakPassword;
 	}
 	
 		// Author:
@@ -415,7 +494,6 @@ public class PasswordProtector
 		{
 			if (username.equals(userDatabase[i][0]))
 			{
-			
 				userSalt = userDatabase[i][2];
 				expectedHash = userDatabase[i][1];
 				if (checkLogin.checkLogin(password, userSalt).equals(expectedHash))
@@ -473,6 +551,10 @@ public class PasswordProtector
 	 * 	Problems
 	 * 
 	 * 1)	Just the normal debugging issues as coding. Used wrong variable here, < instead of > there
+	 * 
+	 * 2)	We had an issue with the userLogin method for a while. There was a problem confirming the String of the hash created at user creation and the one from user login.
+	 * 		We knew both were being generated the same way, but couldn't get the right results. Fixed the problem by tracing exactly what the text was along each step of the
+	 * 		hashing process to determine where it went wrong.
 	 * 
 	 */
 
