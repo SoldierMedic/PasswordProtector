@@ -1,5 +1,8 @@
 package Version1;
 
+//import java.io.Console; this import would allow us to mask password input. 
+//HOWEVER THIS WONT WORK IN ECLIPLSE. Only in command line.
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -26,7 +29,6 @@ public class PasswordProtector
 	public static String[ ][ ] userDatabase = new String[10][5]; // Array made up of user login info: column 0 is
 																						// username, column 1 is md5hash, column 2 is salt
 	public static int databaseCounter = 0; // Counts how many entries are in the user database
-
 	public static void main( String[ ] args )
 	{
 		char userChoice; // Option user chooses for what they would like to do
@@ -37,14 +39,17 @@ public class PasswordProtector
 		 */
 		do
 		{
-			System.out.printf ( "\nWhat would you like to do?\n\n" );
-			System.out.printf ( "1) Convert file of plaintext strings to MD5 hashes\n" );
+			makeSolidLine(50);
+			System.out.printf ( "\nWhat would you like to do?\n" );
+			makeSolidLine(50);
+			System.out.printf ( "\n1) Convert file of plaintext strings to MD5 hashes\n" );
 			System.out.printf ( "2) Determine plaintext of list of unknown hashes\n" );
 			System.out.printf ( "3) Check if your password is weak\n" );
 			System.out.printf ( "4) Add new user\n" );
 			System.out.printf ( "5) Try logging in\n" );
 			System.out.printf ( "6) Show password database\n" );
 			System.out.printf ( "Q) Quit\n" );
+			makeSolidLine(50);
 			userChoice = input.next ( ).toLowerCase ( ).charAt ( 0 );
 
 			while ( userChoice < '1' || userChoice > '6' && userChoice != 'q' )
@@ -63,7 +68,20 @@ public class PasswordProtector
 			}
 			else if ( userChoice == '3' )
 			{
-				checkPasswordStrength ( "Hi" );
+				//Console console = System.console();
+				System.out.println ( "Enter the password you want to check." );
+				String s = input.next();
+				if(checkPasswordStrength ( s ) == true)
+			{
+					System.out.println ( "The password entered is safe." );
+			}
+				else
+				{
+					System.out.printf ( "Your password is too weak. Please meet password requirements\n"
+							+ "( You're password must have between 8 and 16 characters while consisting of:\n1 lowercase letter, 1 uppercase letter\n 1 digit, 1 symbol" );
+					s=null;
+					continue;
+				}
 			}
 			else if ( userChoice == '4' )
 			{
@@ -203,9 +221,7 @@ public class PasswordProtector
 					allowedPassword = true;
 					securePass = new SaltedMD5 ( password2 );
 					String salt = securePass.getSalt ( );
-					System.out.printf ( "line 125 salt is %s", salt );
 					String hash = securePass.getHash ( );
-					System.out.println ( "line 136 hash is " + hash );
 					userDatabase[databaseCounter][0] = username; // Username
 					userDatabase[databaseCounter][1] = hash; // Salted hash
 					userDatabase[databaseCounter][2] = salt; // Salt string
@@ -215,7 +231,8 @@ public class PasswordProtector
 				}
 				else
 				{
-					System.out.printf ( "Your password is too weak. Please meet password requirements\n" );
+					System.out.printf ( "Your password is too weak. Please meet password requirements\n"
+							+ "( You're password must have between 8 and 16 characters while consisting of:\n1 lowercase letter, 1 uppercase letter\n 1 digit, 1 symbol" );
 				}
 			}
 			else
@@ -236,9 +253,9 @@ public class PasswordProtector
 	// This method will check the users potential password against our list of requirements.
 	//If the password is strong the method will return true.
 	private static boolean checkPasswordStrength(String password){
-	    return password.matches("^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z])");
+	    return password.matches("^(?=.*([A-Z]){1,})(?=.*[!@#$&*]{1,})(?=.*[0-9]{1,})(?=.*[a-z]{1,}).{8,16}$");
 	} // this method uses regex to determine if there is at least:
-		// 2 Uppercase, 1 symbol, two digits, at least 3 lowercase letters, and a min of 8 characters.
+		// 1 Uppercase, 1 symbol, 1 digits, at least 1 lowercase letters, and a min of 8 characters.
 
 	// Author:
 	// This method is a menu that allows a user to choose which file to read into the knownPassword array
@@ -551,6 +568,15 @@ public class PasswordProtector
 			}
 		}
 	}
+	public static void makeSolidLine( int stars )
+	{
+		for ( int num2 = 0; num2 < stars; num2++ )
+		{
+			System.out.print ( "*" );
+
+		}
+	}
+
 
 	/*
 	 * Problems
