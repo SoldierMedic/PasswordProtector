@@ -24,10 +24,8 @@ import java.util.Scanner;
 public class PasswordProtector
 {
 	public static Scanner input = new Scanner ( System.in );
-	public static String[ ][ ] mD5PasswordArray = new String[10000][2]; // array made from the password file; plaintext
-																								// in column 0, md5Hash column 1
-	public static String[ ][ ] userDatabase = new String[10][5]; // Array made up of user login info: column 0 is
-																						// username, column 1 is md5hash, column 2 is salt
+	public static String[ ][ ] mD5PasswordArray = new String[10000][2]; // array made from the password file; plaintext in column 0, md5Hash column 1
+	public static String[ ][ ] userDatabase = new String[10][5]; // Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
 	public static int databaseCounter = 0; // Counts how many entries are in the user database
 
 	public static void main( String[ ] args )
@@ -49,13 +47,14 @@ public class PasswordProtector
 			System.out.printf ( "3) Add new user\n" );
 			System.out.printf ( "4) Try logging in\n" );
 			System.out.printf ( "5) Show password database\n" );
+			System.out.printf ( "6) Display hash types\n" );
 			System.out.printf ( "Q) Quit\n" );
 			makeSolidLine ( 50 );
 			userChoice = input.next ( ).toLowerCase ( ).charAt ( 0 );
 
-			while ( userChoice < '1' || userChoice > '5' && userChoice != 'q' )
+			while ( userChoice < '1' || userChoice > '6' && userChoice != 'q' )
 			{
-				System.out.printf ( "Incorrect Choice\nPlease enter a number between 1 and 5, or press q to Quit\n" );
+				System.out.printf ( "Incorrect Choice\nPlease enter a number between 1 and 6, or press q to Quit\n" );
 				userChoice = input.next ( ).charAt ( 0 );
 			}
 			if ( userChoice == '1' )
@@ -95,6 +94,10 @@ public class PasswordProtector
 			{
 				showPasswordDatabase ( );
 			}
+			else if ( userChoice == '6' )
+			{
+				showHashTypes();
+			}
 			else
 			{
 				System.out.printf ( "Goodbye\n" );
@@ -103,9 +106,9 @@ public class PasswordProtector
 		} while ( userChoice >= '1' && userChoice <= '5' );
 	}
 
-	// Author: Marco
-	// This method allows the addition of a new user. They are prompted to enter first and last name, a username is
-	// assigned, or the user can choose their own username
+		// Author: Marco
+		// This method allows the addition of a new user. They are prompted to enter first and last name, a username is
+		// assigned, or the user can choose their own username
 	public static void addNewUser( )
 	{
 		SaltedMD5 securePass = null; // Salted password object for storing hash of user password in database
@@ -498,9 +501,25 @@ public class PasswordProtector
 			}
 		}
 	}
+	
+		// Author: Patrick
+		// This method will display the difference between MD5 and SHA-512 Hashing, with and without salt
+	public static void showHashTypes()
+	{
+		System.out.printf("What word would you like to hash?\n");
+		String word = input.next();
+		PasswordMD5 md5Password = new PasswordMD5(word);
+		SaltedMD5 md5Salted = new SaltedMD5(word);
+		SHA512Password sha512Password = new SHA512Password(word);
+		SaltedSHA512 sha512Salted = new SaltedSHA512(word);
+		System.out.printf("MD5 unsalted:\t%s\n", md5Password.getMD5Hash());
+		System.out.printf("MD5 Salted:\t%s\tSalt:\t%s\n", md5Salted.getHash(), md5Salted.getSalt());
+		System.out.printf("SHA-512 unsalted:\t%s\n", sha512Password.getSHA512Hash());
+		System.out.printf("SHA-512 Salted:\t%s\tSalt:\t%s\n", sha512Salted.getHash(), sha512Salted.getSalt());
+	}
 
-	// Author:
-	// This method will print the user database to the screen
+		// Author: Patrick
+		// This method will print the user database to the screen
 	public static void showPasswordDatabase( )
 	{
 		System.out.printf ( "\n%10s%25s%15s%10s%10s%15s", "Username", "Hash", " ", "First Name", "Last Name",
