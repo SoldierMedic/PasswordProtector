@@ -29,72 +29,69 @@ public class PasswordProtector
 	public static String[ ][ ] userDatabase = new String[10][5]; // Array made up of user login info: column 0 is
 																						// username, column 1 is md5hash, column 2 is salt
 	public static int databaseCounter = 0; // Counts how many entries are in the user database
+
 	public static void main( String[ ] args )
 	{
 		char userChoice; // Option user chooses for what they would like to do
 		char successfulLogin; // Holds if a login was successful
 		readUserDatabaseToArray ( );
+		readFileToPasswordArray ( "Plaintext.txt" );
 		/*
 		 * do { successfulLogin = userLogin(); } while (successfulLogin != 'y');
 		 */
 		do
 		{
-			makeSolidLine(50);
+			makeSolidLine ( 50 );
 			System.out.printf ( "\nWhat would you like to do?\n" );
-			makeSolidLine(50);
-			System.out.printf ( "\n1) Convert file of plaintext strings to MD5 hashes\n" );
-			System.out.printf ( "2) Determine plaintext of list of unknown hashes\n" );
-			System.out.printf ( "3) Check if your password is weak\n" );
-			System.out.printf ( "4) Add new user\n" );
-			System.out.printf ( "5) Try logging in\n" );
-			System.out.printf ( "6) Show password database\n" );
+			makeSolidLine ( 50 );
+			System.out.printf ( "\n1) Determine plaintext of list of unknown hashes\n" );
+			System.out.printf ( "2) Check if your password is weak\n" );
+			System.out.printf ( "3) Add new user\n" );
+			System.out.printf ( "4) Try logging in\n" );
+			System.out.printf ( "5) Show password database\n" );
 			System.out.printf ( "Q) Quit\n" );
-			makeSolidLine(50);
+			makeSolidLine ( 50 );
 			userChoice = input.next ( ).toLowerCase ( ).charAt ( 0 );
 
-			while ( userChoice < '1' || userChoice > '6' && userChoice != 'q' )
+			while ( userChoice < '1' || userChoice > '5' && userChoice != 'q' )
 			{
-				System.out.printf ( "Incorrect Choice\nPlease enter a number between 1 and 6, or press q to Quit\n" );
+				System.out.printf ( "Incorrect Choice\nPlease enter a number between 1 and 5, or press q to Quit\n" );
 				userChoice = input.next ( ).charAt ( 0 );
 			}
-
 			if ( userChoice == '1' )
-			{
-				convertToMD5Menu ( );
-			}
-			else if ( userChoice == '2' )
 			{
 				determinePlaintextMenu ( mD5PasswordArray );
 			}
-			else if ( userChoice == '3' )
+			else if ( userChoice == '2' )
 			{
-				//Console console = System.console();
+				// Console console = System.console();
 				System.out.println ( "Enter the password you want to check." );
-				String s = input.next();
-				if(checkPasswordStrength ( s ) == true)
-			{
+				String s = input.next ( );
+				if ( checkStrongPassword ( s ) == true )
+				{
+
 					System.out.println ( "The password entered is safe." );
-			}
+				}
 				else
 				{
 					System.out.printf ( "Your password is too weak. Please meet password requirements\n"
 							+ "( You're password must have between 8 and 16 characters while consisting of:\n1 lowercase letter, 1 uppercase letter\n 1 digit, 1 symbol" );
-					s=null;
+					s = null;
 					continue;
 				}
 			}
-			else if ( userChoice == '4' )
+			else if ( userChoice == '3' )
 			{
 				addNewUser ( );
 			}
-			else if ( userChoice == '5' )
+			else if ( userChoice == '4' )
 			{
 				do
 				{
 					successfulLogin = userLogin ( );
 				} while ( successfulLogin != 'y' );
 			}
-			else if ( userChoice == '6' )
+			else if ( userChoice == '5' )
 			{
 				showPasswordDatabase ( );
 			}
@@ -103,7 +100,7 @@ public class PasswordProtector
 				System.out.printf ( "Goodbye\n" );
 			}
 
-		} while ( userChoice >= '1' && userChoice <= '6' );
+		} while ( userChoice >= '1' && userChoice <= '5' );
 	}
 
 	// Author: Marco
@@ -216,7 +213,7 @@ public class PasswordProtector
 
 			if ( password1.equals ( password2 ) )
 			{
-				if ( checkPasswordStrength ( password2 ) )
+				if ( checkStrongPassword ( password2 ) )
 				{
 					allowedPassword = true;
 					securePass = new SaltedMD5 ( password2 );
@@ -227,7 +224,7 @@ public class PasswordProtector
 					userDatabase[databaseCounter][2] = salt; // Salt string
 					userDatabase[databaseCounter][3] = firstName; // First name
 					userDatabase[databaseCounter][4] = lastName; // Last name
-					
+
 				}
 				else
 				{
@@ -251,11 +248,31 @@ public class PasswordProtector
 
 	// Author Marco
 	// This method will check the users potential password against our list of requirements.
-	//If the password is strong the method will return true.
-	private static boolean checkPasswordStrength(String password){
-	    return password.matches("^(?=.*([A-Z]){1,})(?=.*[!@#$&*]{1,})(?=.*[0-9]{1,})(?=.*[a-z]{1,}).{8,16}$");
-	} // this method uses regex to determine if there is at least:
-		// 1 Uppercase, 1 symbol, 1 digits, at least 1 lowercase letters, and a min of 8 characters.
+	// If the password is strong the method will return true.
+	// this method uses regex to determine if there is at least:
+	// 1 Uppercase, 1 symbol, 1 digits, at least 1 lowercase letters, and a min of 8 characters.
+	private static boolean checkStrongPassword( String password1 )
+	{
+		boolean passwordCheck=false;
+	
+			if ( password1.matches ( "^(?=.*([A-Z]){1,})(?=.*[!@#$&*]{1,})(?=.*[0-9]{1,})(?=.*[a-z]{1,}).{8,16}$" ) )
+			{
+				passwordCheck = true;
+				if (passwordCheck)
+				{
+					for ( int i = 0; i < mD5PasswordArray.length; i++ )
+					{
+						if ( password1.equals ( mD5PasswordArray[i][1] ) ) // Check  against known passwords
+						{
+							passwordCheck = false;
+						}
+					}
+			
+				}
+			}
+			
+			return passwordCheck;
+	}
 
 	// Author:
 	// This method is a menu that allows a user to choose which file to read into the knownPassword array
@@ -375,6 +392,10 @@ public class PasswordProtector
 	}
 
 	// Author:
+	// This method creates a menu that allows a user to choose different unknown hash files to try and determine their
+	// identities
+
+	// Author:
 	// This method will take a 2-dimensions String array, and return a copy of the array that is twice the length
 	public static String[ ][ ] increaseArraySize( String[ ][ ] origionalArray )
 	{
@@ -410,8 +431,8 @@ public class PasswordProtector
 				convertedPassword = new PasswordMD5 ( password );
 				mD5PasswordArray[passwordCounter][1] = convertedPassword.getMD5Hash ( );
 
-				System.out.printf ( "%10s%40s\n", mD5PasswordArray[passwordCounter][0],
-						mD5PasswordArray[passwordCounter][1] );
+				//System.out.printf ( "%10s%40s\n", mD5PasswordArray[passwordCounter][0],
+					//	mD5PasswordArray[passwordCounter][1] );
 
 				passwordCounter++;
 				if ( passwordCounter >= mD5PasswordArray.length )
@@ -421,7 +442,7 @@ public class PasswordProtector
 			}
 		} catch ( FileNotFoundException e )
 		{
-			e.printStackTrace ( );
+			e.printStackTrace ( ); 	
 		} finally
 		{
 			if ( readPasswordFile != null )
@@ -568,6 +589,7 @@ public class PasswordProtector
 			}
 		}
 	}
+
 	public static void makeSolidLine( int stars )
 	{
 		for ( int num2 = 0; num2 < stars; num2++ )
@@ -578,16 +600,17 @@ public class PasswordProtector
 	}
 
 
-	/*
-	 * Problems
-	 * 
-	 * 1) Just the normal debugging issues as coding. Used wrong variable here, < instead of > there
-	 * 
-	 * 2) We had an issue with the userLogin method for a while. There was a problem confirming the String of the hash
-	 * created at user creation and the one from user login. We knew both were being generated the same way, but couldn't
-	 * get the right results. Fixed the problem by tracing exactly what the text was along each step of the hashing
-	 * process to determine where it went wrong.
-	 * 
-	 */
+
+/*
+ * Problems
+ * 
+ * 1) Just the normal debugging issues as coding. Used wrong variable here, < instead of > there
+ * 
+ * 2) We had an issue with the userLogin method for a while. There was a problem confirming the String of the hash
+ * created at user creation and the one from user login. We knew both were being generated the same way, but couldn't
+ * get the right results. Fixed the problem by tracing exactly what the text was along each step of the hashing process
+ * to determine where it went wrong.
+ * 
+ */
 
 }
