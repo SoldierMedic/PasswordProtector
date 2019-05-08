@@ -1,8 +1,5 @@
 package Version1;
 
-//import java.io.Console; this import would allow us to mask password input. 
-//HOWEVER THIS WONT WORK IN ECLIPLSE. Only in command line.
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -25,13 +22,13 @@ public class PasswordProtector
 {
 	public static Scanner input = new Scanner ( System.in );
 	public static String[ ][ ] mD5PasswordArray = new String[10000][2]; // array made from the password file; plaintext in column 0, md5Hash column 1
-	public static String[ ][ ] userDatabase = new String[10][5]; // Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
-	public static int databaseCounter = 0; // Counts how many entries are in the user database
+	public static String[ ][ ] userDatabase = new String[10][5]; 		// Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
+	public static int databaseCounter = 0; 								// Counts how many entries are in the user database
 
 	public static void main( String[ ] args )
 	{
-		char userChoice; // Option user chooses for what they would like to do
-		char successfulLogin; // Holds if a login was successful
+		char userChoice; 		// Option user chooses for what they would like to do
+		char successfulLogin; 	// Holds if a login was successful
 		readUserDatabaseToArray ( );
 		readFileToPasswordArray ( "Plaintext.txt" );
 		/*
@@ -111,11 +108,11 @@ public class PasswordProtector
 		// assigned, or the user can choose their own username
 	public static void addNewUser( )
 	{
-		SaltedMD5 securePass = null; // Salted password object for storing hash of user password in database
-		String username = " "; // Username string; starts with space so firstName can be added to it as default username
-		boolean allowedPassword; // Stores if password is allowed (ie not duplicate or considered weak)
-		boolean duplicateUsername; // Stores if chosen usename is a duplicate with a existing user
-		char userChoice; // Holds user choice in different menus or yes/no prompts
+		SaltedMD5 securePass = null; 	// Salted password object for storing hash of user password in database
+		String username = " "; 			// Username string; starts with space so firstName can be added to it as default username
+		boolean allowedPassword; 		// Stores if password is allowed (ie not duplicate or considered weak)
+		boolean duplicateUsername; 		// Stores if chosen usename is a duplicate with a existing user
+		char userChoice; 				// Holds user choice in different menus or yes/no prompts
 
 		System.out.println ( );
 		System.out.printf ( "What is the user's First Name?\n" );
@@ -222,11 +219,11 @@ public class PasswordProtector
 					securePass = new SaltedMD5 ( password2 );
 					String salt = securePass.getSalt ( );
 					String hash = securePass.getHash ( );
-					userDatabase[databaseCounter][0] = username; // Username
-					userDatabase[databaseCounter][1] = hash; // Salted hash
-					userDatabase[databaseCounter][2] = salt; // Salt string
-					userDatabase[databaseCounter][3] = firstName; // First name
-					userDatabase[databaseCounter][4] = lastName; // Last name
+					userDatabase[databaseCounter][0] = username; 	// Username
+					userDatabase[databaseCounter][1] = hash; 		// Salted hash
+					userDatabase[databaseCounter][2] = salt; 		// Salt string
+					userDatabase[databaseCounter][3] = firstName; 	// First name
+					userDatabase[databaseCounter][4] = lastName; 	// Last name
 
 				}
 				else
@@ -249,11 +246,11 @@ public class PasswordProtector
 		writeUserDatabaseToFile ( );
 	}
 
-	// Author Marco
-	// This method will check the users potential password against our list of requirements.
-	// If the password is strong the method will return true.
-	// this method uses regex to determine if there is at least:
-	// 1 Uppercase, 1 symbol, 1 digits, at least 1 lowercase letters, and a min of 8 characters.
+		// Author: Marco
+		// This method will check the users potential password against our list of requirements.
+		// If the password is strong the method will return true.
+		// This method uses regex to determine if there is at least:
+		// 1 Uppercase, 1 symbol, 1 digits, at least 1 lowercase letters, and a min of 8 characters.
 	private static boolean checkStrongPassword( String password1 )
 	{
 		boolean passwordCheck=false;
@@ -270,19 +267,17 @@ public class PasswordProtector
 							passwordCheck = false;
 						}
 					}
-			
 				}
 			}
-			
 			return passwordCheck;
 	}
 
-	// Author:
-	// This method is a menu that allows a user to choose which file to read into the knownPassword array
+		// Author: Marco
+		// This method is a menu that allows a user to choose which file to read into the knownPassword array
 	public static void convertToMD5Menu( )
 	{
-		int userChoice; // option user chooses for what they would like to do
-		String fileChoice; // file user specifies they would like to use for MD5 conversion
+		int userChoice; 	// option user chooses for what they would like to do
+		String fileChoice; 	// file user specifies they would like to use for MD5 conversion
 
 		System.out.printf ( "\nWhat file would you like to convert?\n\n" );
 		System.out.printf ( "1) Convert default file\n" );
@@ -311,17 +306,16 @@ public class PasswordProtector
 		System.out.printf ( "Your file has been read to an array with hashes\n" );
 	}
 
-	// Author:
-	// This method will determine the plaintext identity of unknown hashes. This is accomplishes by comparing the list of
-	// unknown hashes to our list of hashes
-	// we determined from the list of strings. If a match is found, the plaintext of the hash is stored
+		// Author: Patrick
+		// This method will determine the plaintext identity of unknown hashes. This is accomplishes by comparing the list of
+		// unknown hashes to our list of hashes we determined from the list of strings. If a match is found, the plaintext of the hash is stored
 	public static void determinePlaintext( String[ ][ ] knownPasswords, String file1 )
 	{
-		int counter = 0; // holds how many hashes have been read to the array
-		Scanner unknownHashes = null; // scanner object reading in the file of unknown hashes
-		String determinedPlaintext; // holds value of string of determined plaintext of a hash
-		String testHash; // holds value of known hash from knownPasswords array
-		String unknownHash; // holds value of string of unknown hash
+		int counter = 0; 				// holds how many hashes have been read to the array
+		Scanner unknownHashes = null; 	// scanner object reading in the file of unknown hashes
+		String determinedPlaintext; 	// holds value of string of determined plaintext of a hash
+		String testHash; 				// holds value of known hash from knownPasswords array
+		String unknownHash; 			// holds value of string of unknown hash
 		String[ ][ ] unknownPasswords = new String[10][2]; // holds unknown hash in column 0, determined (if possible)
 																			// string value in column 1
 
@@ -362,9 +356,9 @@ public class PasswordProtector
 		}
 	}
 
-	// Author:
-	// This method creates a menu that allows a user to choose different unknown hash files to try and determine their
-	// identities
+		// Author: Patrick
+		// This method creates a menu that allows a user to choose different unknown hash files to try and determine their
+		// identities
 	public static void determinePlaintextMenu( String[ ][ ] knownPasswords )
 	{
 		int userChoice; // option user chooses they would like to do
@@ -394,12 +388,8 @@ public class PasswordProtector
 		}
 	}
 
-	// Author:
-	// This method creates a menu that allows a user to choose different unknown hash files to try and determine their
-	// identities
-
-	// Author:
-	// This method will take a 2-dimensions String array, and return a copy of the array that is twice the length
+		// Author: Marco
+		// This method will take a 2-dimensions String array, and return a copy of the array that is twice the length
 	public static String[ ][ ] increaseArraySize( String[ ][ ] origionalArray )
 	{
 		String[ ][ ] cloneArray = new String[origionalArray.length * 2][origionalArray[0].length];
@@ -413,15 +403,15 @@ public class PasswordProtector
 		return cloneArray;
 	}
 
-	// Author:
-	// This method will read a file of plaintext strings to an array, then in the second column of the array store the
-	// MD5 hash of the string in the first column
+		// Author: Marco
+		// This method will read a file of plaintext strings to an array, then in the second column of the array store the
+		// MD5 hash of the string in the first column
 	public static void readFileToPasswordArray( String plaintextFile )
 	{
-		int passwordCounter = 0; // Counts how many passwords have been read, to correctly assign them into the array
-		PasswordMD5 convertedPassword = null; // Object that will convert plaintext to md5Hash
-		Scanner readPasswordFile = null; // Scanner object reading in password file
-		String password; // Password from plaintext file
+		int passwordCounter = 0; 				// Counts how many passwords have been read, to correctly assign them into the array
+		PasswordMD5 convertedPassword = null; 	// Object that will convert plaintext to md5Hash
+		Scanner readPasswordFile = null; 		// Scanner object reading in password file
+		String password; 						// Password from plaintext file
 
 		try
 		{
@@ -433,9 +423,6 @@ public class PasswordProtector
 				mD5PasswordArray[passwordCounter][0] = password;
 				convertedPassword = new PasswordMD5 ( password );
 				mD5PasswordArray[passwordCounter][1] = convertedPassword.getMD5Hash ( );
-
-				//System.out.printf ( "%10s%40s\n", mD5PasswordArray[passwordCounter][0],
-					//	mD5PasswordArray[passwordCounter][1] );
 
 				passwordCounter++;
 				if ( passwordCounter >= mD5PasswordArray.length )
@@ -455,13 +442,13 @@ public class PasswordProtector
 		}
 	}
 
-	// Author:
-	// This method will read in the password database file to the userDatabase array for use in the program
+		// Author: Patrick
+		// This method will read in the password database file to the userDatabase array for use in the program
 	public static void readUserDatabaseToArray( )
 	{
-		Scanner readDatabase = null; // Object to read in the database file
-		Scanner scanLine = null; // Object to assign lines from the database file to the array
-		String string1; // Line from the file, to be read an assigned to array
+		Scanner readDatabase = null; 	// Object to read in the database file
+		Scanner scanLine = null; 		// Object to assign lines from the database file to the array
+		String string1; 				// Line from the file, to be read an assigned to array
 
 		try
 		{
@@ -515,7 +502,7 @@ public class PasswordProtector
 		System.out.printf("MD5 unsalted:\t%s\n", md5Password.getMD5Hash());
 		System.out.printf("MD5 Salted:\t%s\tSalt:\t%s\n", md5Salted.getHash(), md5Salted.getSalt());
 		System.out.printf("SHA-512 unsalted:\t%s\n", sha512Password.getSHA512Hash());
-		System.out.printf("SHA-512 Salted:\t%s\tSalt:\t%s\n", sha512Salted.getHash(), sha512Salted.getSalt());
+		System.out.printf("SHA-512 Salted:\t\t%s\tSalt:\t%s\n", sha512Salted.getHash(), sha512Salted.getSalt());
 	}
 
 		// Author: Patrick
@@ -531,20 +518,19 @@ public class PasswordProtector
 		}
 	}
 
-	// Author:
-	// This method allows a user to login. The username is checked against the password database and a hash of the user's
-	// password is compared against the one
-	// in the database. It is checked whether the user had a salted password or an unsalted password and checks the hash
-	// accordingly
+		// Author: Patrick
+		// This method allows a user to login. The username is checked against the password database and a hash of the user's
+		// password is compared against the one
+		// in the database. It is checked whether the user had a salted password or an unsalted password and checks the hash
+		// accordingly
 	public static char userLogin( )
 	{
-		SaltedMD5 checkLogin = null; // Create SaltedMD5 object for use in checking correct login
-		PasswordMD5 checkLoginPlain = null; // Create PasswordMD5 object for use in checking correct login without salted
-														// hash
-		String expectedHash = null; // Store user hash from userDatabase
-		String userSalt = null; // Store user salt string from userDatabase
-		char successfulLogin = 'n'; // Variable to pass back if a user login was successfully confirmed. No be default
-												// unless login is successful
+		SaltedMD5 checkLogin = null; 		// Create SaltedMD5 object for use in checking correct login
+		PasswordMD5 checkLoginPlain = null; // Create PasswordMD5 object for use in checking correct login without salted hash
+		String expectedHash = null; 		// Store user hash from userDatabase
+		String userSalt = null; 			// Store user salt string from userDatabase
+		char successfulLogin = 'n'; 		// Variable to pass back if a user login was successfully confirmed. No be default
+											// unless login is successful
 		System.out.printf ( "Enter username:\t" );
 		String username = input.next ( );
 		System.out.printf ( "\nEnter password:\t" );
@@ -581,9 +567,9 @@ public class PasswordProtector
 		return successfulLogin;
 	}
 
-	// Author:
-	// This method will write the contents of the userDatabase array back to the UserDatabase.txt file that it was read
-	// in from
+		// Author: Patrick
+		// This method will write the contents of the userDatabase array back to the UserDatabase.txt file that it was read
+		// in from
 	public static void writeUserDatabaseToFile( )
 	{
 		PrintWriter writeFile = null;
@@ -609,13 +595,15 @@ public class PasswordProtector
 		}
 	}
 
+		// Author: Marco
+		// This method will print a solid line of stars, with a new line following the last star
 	public static void makeSolidLine( int stars )
 	{
 		for ( int num2 = 0; num2 < stars; num2++ )
 		{
 			System.out.print ( "*" );
-
 		}
+		System.out.println();
 	}
 
 
