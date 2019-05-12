@@ -5,12 +5,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /*
- * Author:	Patrick and Marco
+ * Author:		Patrick
  * Date:		5/13/2019
- * Class:	  CSC 160 Combo
+ * Class:	  	CSC 160 Combo
  * Assignment:	Final Project
  * 
- * This program ......
+ * This program will create a SHA-512 hash of a plaintext string
+ * 
  */
 
 public class SHA512Password {
@@ -20,6 +21,7 @@ public class SHA512Password {
 		plaintext = plaintext1;
 	}
 
+	// Author: Patrick
 	// This method will determine the SHA-512 hash of a plaintext string, returning the
 	// value of the hash
 	public String getSHA512Hash() {
@@ -36,11 +38,13 @@ public class SHA512Password {
 		return hashInteger.toString(16);
 	}
 
+	// Author: Patrick
 	// This method will print the plaintext of this password/hash pair
 	public String getPlaintext() {
 		return plaintext;
 	}
 
+	// Author: Patrick
 	// This method will allow a user to set the plaintext for a pair. If plaintext
 	// is set, new hash is determined
 	public void setPlaintext(String plaintext1) {

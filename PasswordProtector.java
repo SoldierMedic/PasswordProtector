@@ -21,9 +21,9 @@ import java.util.Scanner;
 public class PasswordProtector
 {
 	public static Scanner input = new Scanner ( System.in );
-	public static String[ ][ ] mD5PasswordArray = new String[10000][2]; // array made from the password file; plaintext in column 0, md5Hash column 1
-	public static String[ ][ ] userDatabase = new String[10][5]; 		// Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
-	public static int databaseCounter = 0; 								// Counts how many entries are in the user database
+	public static String[ ][ ] passwordArray = new String[10000][3]; // array made from the password file; plaintext in column 0, MD5 hash column 1, SHA-512 hash column 2
+	public static String[ ][ ] userDatabase = new String[10][5]; 	// Array made up of user login info: column 0 is username, column 1 is md5hash, column 2 is salt
+	public static int databaseCounter = 0; 							// Counts how many entries are in the user database
 
 	public static void main( String[ ] args )
 	{
@@ -56,7 +56,7 @@ public class PasswordProtector
 			}
 			if ( userChoice == '1' )
 			{
-				determinePlaintextMenu ( mD5PasswordArray );
+				determinePlaintextMenu ( passwordArray );
 			}
 			else if ( userChoice == '2' )
 			{
@@ -82,6 +82,7 @@ public class PasswordProtector
 			}
 			else if ( userChoice == '4' )
 			{
+				System.out.printf("Username: admin\nPassword: Password01!\nOr use created account");
 				do
 				{
 					successfulLogin = userLogin ( );
@@ -100,7 +101,7 @@ public class PasswordProtector
 				System.out.printf ( "Goodbye\n" );
 			}
 
-		} while ( userChoice >= '1' && userChoice <= '5' );
+		} while ( userChoice >= '1' && userChoice <= '6' );
 	}
 
 		// Author: Marco
@@ -255,21 +256,21 @@ public class PasswordProtector
 	{
 		boolean passwordCheck=false;
 	
-			if ( password1.matches ( "^(?=.*([A-Z]){1,})(?=.*[!@#$&*]{1,})(?=.*[0-9]{1,})(?=.*[a-z]{1,}).{8,16}$" ) )
+		if ( password1.matches ( "^(?=.*([A-Z]){1,})(?=.*[!@#$&*]{1,})(?=.*[0-9]{1,})(?=.*[a-z]{1,}).{8,16}$" ) )
+		{
+			passwordCheck = true;
+			if (passwordCheck)
 			{
-				passwordCheck = true;
-				if (passwordCheck)
+				for ( int i = 0; i < passwordArray.length; i++ )
 				{
-					for ( int i = 0; i < mD5PasswordArray.length; i++ )
+					if ( password1.equals ( passwordArray[i][1] ) ) // Check  against known passwords
 					{
-						if ( password1.equals ( mD5PasswordArray[i][1] ) ) // Check  against known passwords
-						{
-							passwordCheck = false;
-						}
+						passwordCheck = false;
 					}
 				}
 			}
-			return passwordCheck;
+		}
+		return passwordCheck;
 	}
 
 		// Author: Marco
@@ -316,8 +317,11 @@ public class PasswordProtector
 		String determinedPlaintext; 	// holds value of string of determined plaintext of a hash
 		String testHash; 				// holds value of known hash from knownPasswords array
 		String unknownHash; 			// holds value of string of unknown hash
-		String[ ][ ] unknownPasswords = new String[10][2]; // holds unknown hash in column 0, determined (if possible)
-																			// string value in column 1
+		String[ ][ ] unknownPasswords = new String[10][3]; // holds unknown hash in column 0, determined (if possible)
+																			// string value in column 1, hash type in column 2
+		int md5CorrectCounter = 0;		// Counts number of MD5 hashes identity is confirmed of
+		int sha512CorrectCounter = 0;	// Counts number of SHA-512 hashes identity is confirmed of
+		int unknownHashCounter = 0;		// Counts number of hashes hash type can't be determined
 
 		try
 		{
@@ -326,16 +330,44 @@ public class PasswordProtector
 			{
 				unknownHash = unknownHashes.next ( );
 				unknownPasswords[counter][0] = unknownHash;
-				for ( int i = 0; i < knownPasswords.length; i++ )
+				
+				if ( unknownHash.length() == 32 )		//	Determine hash type used
 				{
-					testHash = knownPasswords[i][1];
-					if ( unknownHash.equals ( testHash ) ) // Check unknown hash against known hashes
+					unknownPasswords[counter][2] = "MD5";
+				}
+				else if ( unknownHash.length ( ) == 128 )
+				{
+					unknownPasswords[counter][2] = "SHA-512";
+				}
+				else
+				{
+					unknownPasswords[counter][2] = "Unknown";
+				}
+				
+				for ( int i = 0; i < knownPasswords.length; i++ ) // Check unknown hash against known hashes
+				{
+					if ( unknownHash.length ( ) == 32 )
 					{
-						determinedPlaintext = knownPasswords[i][0];
-						unknownPasswords[counter][1] = determinedPlaintext;
+						testHash = knownPasswords[i][1];
+						if ( unknownHash.equals ( testHash ) )
+						{
+							determinedPlaintext = knownPasswords[i][0];
+							unknownPasswords[counter][1] = determinedPlaintext;
+							md5CorrectCounter++;
+						}
+					}
+					else if ( unknownHash.length ( ) == 128 )
+					{
+						testHash = knownPasswords[i][2];
+						if ( unknownHash.equals ( testHash ) )
+						{
+							determinedPlaintext = knownPasswords[i][0];
+							unknownPasswords[counter][1] = determinedPlaintext;
+							sha512CorrectCounter++;
+						}
 					}
 				}
-				System.out.printf ( "%40s%15s\n", unknownPasswords[counter][0], unknownPasswords[counter][1] );
+				System.out.printf ( "%13s\tType:%8s\t%s\n", unknownPasswords[counter][1], unknownPasswords[counter][2], unknownPasswords[counter][0] );
 
 				counter++;
 				if ( counter >= unknownPasswords.length ) // Double number of rows in array if counter(our index value)
@@ -352,6 +384,7 @@ public class PasswordProtector
 			if ( unknownHashes != null )
 			{
 				unknownHashes.close ( );
+				System.out.printf("MD5 found: %s\nSHA-512 found: %s\nUnknown hash types: %s\n", md5CorrectCounter, sha512CorrectCounter, unknownHashCounter);
 			}
 		}
 	}
@@ -403,13 +436,25 @@ public class PasswordProtector
 		return cloneArray;
 	}
 
+	// Author: Marco
+	// This method will print a solid line of stars, with a new line following the last star
+public static void makeSolidLine( int stars )
+{
+	for ( int num2 = 0; num2 < stars; num2++ )
+	{
+		System.out.print ( "*" );
+	}
+	System.out.println();
+}
+
 		// Author: Marco
 		// This method will read a file of plaintext strings to an array, then in the second column of the array store the
 		// MD5 hash of the string in the first column
 	public static void readFileToPasswordArray( String plaintextFile )
 	{
 		int passwordCounter = 0; 				// Counts how many passwords have been read, to correctly assign them into the array
-		PasswordMD5 convertedPassword = null; 	// Object that will convert plaintext to md5Hash
+		PasswordMD5 md5Password = null; 		// Object that will convert plaintext to MD5 hash
+		SHA512Password sha512Password = null;	// Object that will convert plaintext to SHA-512 hash
 		Scanner readPasswordFile = null; 		// Scanner object reading in password file
 		String password; 						// Password from plaintext file
 
@@ -420,14 +465,18 @@ public class PasswordProtector
 			while ( readPasswordFile.hasNextLine ( ) )
 			{
 				password = readPasswordFile.next ( );
-				mD5PasswordArray[passwordCounter][0] = password;
-				convertedPassword = new PasswordMD5 ( password );
-				mD5PasswordArray[passwordCounter][1] = convertedPassword.getMD5Hash ( );
+				passwordArray[passwordCounter][0] = password;
+				md5Password = new PasswordMD5 ( password );
+				passwordArray[passwordCounter][1] = md5Password.getMD5Hash ( );
+				sha512Password = new SHA512Password ( password );
+				passwordArray[passwordCounter][2] = sha512Password.getSHA512Hash ( );
+				
+				System.out.printf("Word: %10s\tMD5:\t%s\tSHA-512:\t%s\n", passwordArray[passwordCounter][0], passwordArray[passwordCounter][1], passwordArray[passwordCounter][2]);
 
 				passwordCounter++;
-				if ( passwordCounter >= mD5PasswordArray.length )
+				if ( passwordCounter >= passwordArray.length )
 				{
-					mD5PasswordArray = increaseArraySize ( mD5PasswordArray );
+					passwordArray = increaseArraySize ( passwordArray );
 				}
 			}
 		} catch ( FileNotFoundException e )
@@ -593,17 +642,6 @@ public class PasswordProtector
 				writeFile.close ( );
 			}
 		}
-	}
-
-		// Author: Marco
-		// This method will print a solid line of stars, with a new line following the last star
-	public static void makeSolidLine( int stars )
-	{
-		for ( int num2 = 0; num2 < stars; num2++ )
-		{
-			System.out.print ( "*" );
-		}
-		System.out.println();
 	}
 
 

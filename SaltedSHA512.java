@@ -5,7 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 /*
- * Author:		
+ * Author:		Marco
  * Date:		5/13/2019
  * Class:		CSC 160 Combo
  * Assignment:	Final Project
@@ -27,7 +27,7 @@ public class SaltedSHA512 {
 		hashWithSalt = getSaltedPassword(plaintext, generateSalt());
 	}
 
-		// Author:
+		// Author: Marco
 		// This method will check the hash  a string and predetermined salt string
 	public String checkLogin(String plaintext1, String saltString)
 	{
@@ -36,14 +36,14 @@ public class SaltedSHA512 {
 		try
 		{
 			MessageDigest digest1 = MessageDigest.getInstance("SHA-512");	// Create MessageDigest instance for MD5
-			digest1.update(salt);										// Add password bytes to digest
-			byte[] bytes = digest1.digest(plaintext1.getBytes());		// Get the plain password bytes
-			StringBuilder builder1 = new StringBuilder();				// This bytes[] has bytes in decimal format; Convert it to hexadecimal format
+			digest1.update(salt);											// Add password bytes to digest
+			byte[] bytes = digest1.digest(plaintext1.getBytes());			// Get the plain password bytes
+			StringBuilder builder1 = new StringBuilder();					// This bytes[] has bytes in decimal format; Convert it to hexadecimal format
 			for(int i=0; i< bytes.length ;i++)
 			{
 				builder1.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
 			}
-			generatedHash = builder1.toString();						// Get complete hashed password in hex format
+			generatedHash = builder1.toString();							// Get complete hashed password in hex format
 		}
 		catch (NoSuchAlgorithmException e)
 		{
@@ -53,7 +53,7 @@ public class SaltedSHA512 {
 		return generatedHash;
 	}
 	
-		// Author:
+		// Author: Marco
 		// This method gets a random salt byte and returns it to be added to the password hash for further security
 	public static byte[] generateSalt()
 	{
@@ -73,7 +73,7 @@ public class SaltedSHA512 {
 		return salt;
 	}
 
-		// Author:
+		// Author: Marco
 		// This method will determine the SHA-512 hash of a plaintext string, returning the value of the hash
 	public static String getSaltedPassword(String plaintext1, byte[] salt)
 	{
@@ -97,14 +97,14 @@ public class SaltedSHA512 {
         return saltedPasswordHash;
     }
 	
-		// Author:
+		// Author: Marco
 		// This method will return the salted hash
 	public String getHash()
 	{
 		return hashWithSalt;
 	}
 	
-		// Author:
+		// Author: Marco
 		// This method
 	public String getSalt()
 	{
@@ -112,14 +112,14 @@ public class SaltedSHA512 {
 	}
 
 
-		// Author:
+		// Author: Marco
 		// This method will print the plaintext of this password/hash pair
 	public String getPlaintext()
 	{
 		return plaintext;
 	}
 
-		// Author:
+		// Author: Marco
 		// This method will allow a user to set the plaintext for a pair. If plaintext
 		// is set, new hash is determined
 	public void setPlaintext(String plaintext1)
